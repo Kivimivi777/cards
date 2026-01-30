@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Kapikoinn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <a
+  href="https://kivimivi777.github.io/cards/"
+  target="_blank"
+  style="display:block;margin:10px 0;color:#3b82f6;text-align:center;"
+>
+</a>
+
+<script>
+if (!window.Telegram?.WebApp?.initData) {
+  document.body.insertAdjacentHTML(
+    "afterbegin",
+    "<div style='color:#f87171;text-align:center;'>⚠ Откройте через Telegram-бота</div>"
+  );
+}
+</script>
+
+
+<div class="app fade">
+  <h2>🪙 Kapikoinn</h2>
+
+  <div class="card">
+    <div>ID: <span id="uid">—</span></div>
+    <div>Ник: <span id="uname">—</span></div>
+    <div class="balance">
+      Баланс: <span id="balance">…</span>
+    </div>
+  </div>
+
+  <button onclick="loadBalance()">🔄 Обновить баланс</button>
+  <button onclick="openShop()">🛒 Магазин</button>
+  <button onclick="openGames()">🎮 Игры</button>
+  <button class="secondary" onclick="closeApp()">❌ Закрыть</button>
+
+  <!-- Магазин -->
+  <div id="shop" class="card hidden">
+    <h3>🛒 Магазин</h3>
+    <div id="shopList"></div>
+    <button class="secondary" onclick="closeShop()">⬅ Назад</button>
+  </div>
+
+  <!-- Игры -->
+  <div id="games" class="card hidden">
+    <h3>🎮 Игры</h3>
+    <button onclick="playCoin()">🪙 Монетка</button>
+    <button class="secondary" onclick="closeGames()">⬅ Назад</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
