@@ -87,84 +87,60 @@
 </div>
 
 <script>
-  // Инициализация Telegram WebApp
-  const tg = window.Telegram?.WebApp;
-  if (!tg) {
-    document.body.innerHTML = "<div style='color:red;text-align:center;padding:20px;'>⚠ Откройте через Telegram!</div>";
-    throw new Error("Not in Telegram WebApp");
-  }
-
+  const tg = window.Telegram.WebApp;
   tg.expand();
   tg.ready();
 
-  // Получаем данные пользователя
-  const initDataUnsafe = tg.initDataUnsafe;
-  if (initDataUnsafe?.user) {
-    document.getElementById("uid").textContent = initDataUnsafe.user.id || "—";
-    document.getElementById("uname").textContent = 
-      initDataUnsafe.user.username || initDataUnsafe.user.first_name || "—";
-  }
+  // Скрыть основную кнопку до тех пор, пока не понадобится
+  tg.MainButton.hide();
 
-  // Отправка данных в бота
-  function sendData(data) {
-    tg.sendData(JSON.stringify(data));
-  }
+  // Ждём, когда бот отправит "обновить интерфейс"
+  tg.onEvent("mainButtonClicked", function() {
+    // Это сработает, когда бот вызовет WebApp.close() с payload
+    // Но на самом деле — мы используем хак: бот отправляет спец-сообщение
+    location.reload(); // или лучше — обновить данные без перезагрузки
+  });
+</script>
 
-  // === ОСНОВНЫЕ ФУНКЦИИ ===
-  function loadBalance() {
-    sendData({ action: "get_balance" });
-  }
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const uid = urlParams.get('uid') || '—';
+  const balance = urlParams.get('balance') || '…';
+  const packs = (urlParams.get('packs') || '').split(',').filter(x => x);
 
-  function openShop() {
-    document.getElementById("mainView").classList.add("hidden");
-    document.getElementById("shop").classList.remove("hidden");
-    loadShop();
-  }
+  document.getElementById('uid').textContent = uid;
+  document.getElementById('uname').textContent = '—'; // или передавать username
+  document.getElementById('balance').textContent = balance;
 
-  function closeShop() {
-    document.getElementById("shop").classList.add("hidden");
-    document.getElementById("mainView").classList.remove("hidden");
-  }
-
-  function openGames() {
-    document.getElementById("mainView").classList.add("hidden");
-    document.getElementById("games").classList.remove("hidden");
-  }
-
-  function closeGames() {
-    document.getElementById("games").classList.add("hidden");
-    document.getElementById("mainView").classList.remove("hidden");
-  }
-
-  function closeApp() {
-    tg.close();
-  }
-
-  function playCoin() {
-    alert("Монетка — пока недоступна в Mini App. Играйте в боте!");
-    // Или: tg.openTelegramLink('https://t.me/cards_7kbot');
-  }
-
-  // Загрузка списка паков из бота (пока статика)
-  function loadShop() {
-    const shopList = document.getElementById("shopList");
-    // В реальности: запрос к API или получение через initData
-    // Пока покажем статичные кнопки
-    shopList.innerHTML = `
-      <button onclick="buyPack('mini')">Купить Mini Pack (1440 🪙)</button>
-      <button onclick="buyPack('norm')">Купить Norm Pack (2500 🪙)</button>
-    `;
+  // Динамически строим магазин
+  const shopList = document.getElementById('shopList');
+  if (packs.length === 0) {
+    shopList.innerHTML = "<p>❌ Нет доступных паков.</p>";
+  } else {
+    let html = '';
+    const PACK_INFO = {
+      mini: { title: "Mini Pack", price: 1440 },
+      norm: { title: "Norm Pack", price: 2500 }
+      // ← но лучше тоже передавать через URL!
+    };
+    packs.forEach(pack => {
+      const info = PACK_INFO[pack] || { title: pack, price: "?" };
+      html += `<button class="pack-btn" onclick="buyPack('${pack}')">
+        ${info.title} — ${info.price} 🪙
+      </button><br>`;
+    });
+    shopList.innerHTML = html;
   }
 
   function buyPack(pack) {
-    if (confirm(`Подтвердите покупку: ${pack}?`)) {
+    if (confirm(`Купить ${pack}?`)) {
       sendData({ action: "buy", pack: pack });
+      // Закрываем Mini App — бот обработает покупку
+      window.Telegram.WebApp.close();
     }
   }
-
-  // При старте — сразу запрашиваем баланс
-  loadBalance();
 </script>
 </body>
 </html>
+
 
