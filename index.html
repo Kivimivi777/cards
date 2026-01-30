@@ -1,62 +1,79 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Kapikoinn</title>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capicoin Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    button { margin: 10px 0; padding: 10px 20px; font-size: 16px; }
+    #balance { font-weight: bold; font-size: 18px; color: gold; }
+    .pack-btn { background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .pack-unavailable { background: #ccc; cursor: not-allowed; }
+    #packs-container { margin-top: 10px; }
+  </style>
 </head>
 <body>
+  <h2>🪙 Capicoin Mini App</h2>
+  <div id="balance">Загрузка...</div>
+  <button onclick="getBalance()">🔄 Обновить баланс</td>
+  <hr>
+  <h3>🛒 Доступные паки:</h3>
+  <div id="packs-container">Загрузка паков...</div>
+  <hr>
+  <h3>🎮 Игры:</h3>
+  <button onclick="openBot()">Открыть игры в боте</button>
 
-    <a
-  href="https://kivimivi777.github.io/cards/"
-  target="_blank"
-  style="display:block;margin:10px 0;color:#3b82f6;text-align:center;"
->
-</a>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.MainButton.hide();
 
-<script>
-if (!window.Telegram?.WebApp?.initData) {
-  document.body.insertAdjacentHTML(
-    "afterbegin",
-    "<div style='color:#f87171;text-align:center;'>⚠ Откройте через Telegram-бота</div>"
-  );
-}
-</script>
+    const API_URL = "https://your-domain.com/api/products"; // ← ЗАМЕНИТЕ НА ВАШ РЕАЛЬНЫЙ URL
 
+    function sendData(data) {
+      tg.sendData(JSON.stringify(data));
+    }
 
-<div class="app fade">
-  <h2>🪙 Kapikoinn</h2>
+    function getBalance() {
+      sendData({ action: "get_balance" });
+    }
 
-  <div class="card">
-    <div>ID: <span id="uid">—</span></div>
-    <div>Ник: <span id="uname">—</span></div>
-    <div class="balance">
-      Баланс: <span id="balance">…</span>
-    </div>
-  </div>
+    function buyPack(packKey) {
+      if (confirm(`Подтвердите покупку пака "${packKey}"?`)) {
+        sendData({ action: "buy", pack: packKey });
+      }
+    }
 
-  <button onclick="loadBalance()">🔄 Обновить баланс</button>
-  <button onclick="openShop()">🛒 Магазин</button>
-  <button onclick="openGames()">🎮 Игры</button>
-  <button class="secondary" onclick="closeApp()">❌ Закрыть</button>
+    async function loadPacks() {
+      try {
+        const res = await fetch(API_URL);
+        const packs = await res.json();
+        const container = document.getElementById("packs-container");
+        if (Object.keys(packs).length === 0) {
+          container.innerHTML = "<p>❌ Нет доступных паков.</p>";
+          return;
+        }
+        let html = "";
+        for (const [key, info] of Object.entries(packs)) {
+          html += `
+            <button class="pack-btn" onclick="buyPack('${key}')">
+              ${info.title} — ${info.price} 🪙
+            </button><br>
+          `;
+        }
+        container.innerHTML = html;
+      } catch (err) {
+        console.error("Ошибка загрузки паков:", err);
+        document.getElementById("packs-container").innerHTML = 
+          "<p>⚠️ Не удалось загрузить паки. Попробуйте позже.</p>";
+      }
+    }
 
-  <!-- Магазин -->
-  <div id="shop" class="card hidden">
-    <h3>🛒 Магазин</h3>
-    <div id="shopList"></div>
-    <button class="secondary" onclick="closeShop()">⬅ Назад</button>
-  </div>
-
-  <!-- Игры -->
-  <div id="games" class="card hidden">
-    <h3>🎮 Игры</h3>
-    <button onclick="playCoin()">🪙 Монетка</button>
-    <button class="secondary" onclick="closeGames()">⬅ Назад</button>
-  </div>
-</div>
-
-<script src="script.js"></script>
+    // Инициализация
+    getBalance();
+    loadPacks();
+  </script>
 </body>
 </html>
