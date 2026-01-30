@@ -1,79 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <title>Kapikoinn</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Capicoin Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
-    button { margin: 10px 0; padding: 10px 20px; font-size: 16px; }
-    #balance { font-weight: bold; font-size: 18px; color: gold; }
-    .pack-btn { background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .pack-unavailable { background: #ccc; cursor: not-allowed; }
-    #packs-container { margin-top: 10px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #1a73e8;
+    }
+    .card {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+    }
+    .hidden {
+      display: none !important;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      background: #1a73e8;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+    #balance {
+      font-weight: bold;
+      color: #d97706;
+    }
   </style>
 </head>
 <body>
-  <h2>🪙 Capicoin Mini App</h2>
-  <div id="balance">Загрузка...</div>
-  <button onclick="getBalance()">🔄 Обновить баланс</td>
-  <hr>
-  <h3>🛒 Доступные паки:</h3>
-  <div id="packs-container">Загрузка паков...</div>
-  <hr>
-  <h3>🎮 Игры:</h3>
-  <button onclick="openBot()">Открыть игры в боте</button>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.MainButton.hide();
+<div class="app" id="mainView">
+  <h2>🪙 Kapikoinn</h2>
 
-    const API_URL = "https://your-domain.com/api/products"; // ← ЗАМЕНИТЕ НА ВАШ РЕАЛЬНЫЙ URL
+  <div class="card">
+    <div>ID: <span id="uid">—</span></div>
+    <div>Ник: <span id="uname">—</span></div>
+    <div class="balance">Баланс: <span id="balance">…</span></div>
+  </div>
 
-    function sendData(data) {
-      tg.sendData(JSON.stringify(data));
+  <button onclick="loadBalance()">🔄 Обновить баланс</button>
+  <button onclick="openShop()">🛒 Магазин</button>
+  <button onclick="openGames()">🎮 Игры</button>
+  <button class="secondary" onclick="closeApp()">❌ Закрыть</button>
+</div>
+
+<div id="shop" class="app hidden">
+  <h2>🛒 Магазин</h2>
+  <div class="card" id="shopList">Загрузка...</div>
+  <button class="secondary" onclick="closeShop()">⬅ Назад</button>
+</div>
+
+<div id="games" class="app hidden">
+  <h2>🎮 Игры</h2>
+  <button onclick="playCoin()">🪙 Монетка</button>
+  <button class="secondary" onclick="closeGames()">⬅ Назад</button>
+</div>
+
+<script>
+  // Инициализация Telegram WebApp
+  const tg = window.Telegram?.WebApp;
+  if (!tg) {
+    document.body.innerHTML = "<div style='color:red;text-align:center;padding:20px;'>⚠ Откройте через Telegram!</div>";
+    throw new Error("Not in Telegram WebApp");
+  }
+
+  tg.expand();
+  tg.ready();
+
+  // Получаем данные пользователя
+  const initDataUnsafe = tg.initDataUnsafe;
+  if (initDataUnsafe?.user) {
+    document.getElementById("uid").textContent = initDataUnsafe.user.id || "—";
+    document.getElementById("uname").textContent = 
+      initDataUnsafe.user.username || initDataUnsafe.user.first_name || "—";
+  }
+
+  // Отправка данных в бота
+  function sendData(data) {
+    tg.sendData(JSON.stringify(data));
+  }
+
+  // === ОСНОВНЫЕ ФУНКЦИИ ===
+  function loadBalance() {
+    sendData({ action: "get_balance" });
+  }
+
+  function openShop() {
+    document.getElementById("mainView").classList.add("hidden");
+    document.getElementById("shop").classList.remove("hidden");
+    loadShop();
+  }
+
+  function closeShop() {
+    document.getElementById("shop").classList.add("hidden");
+    document.getElementById("mainView").classList.remove("hidden");
+  }
+
+  function openGames() {
+    document.getElementById("mainView").classList.add("hidden");
+    document.getElementById("games").classList.remove("hidden");
+  }
+
+  function closeGames() {
+    document.getElementById("games").classList.add("hidden");
+    document.getElementById("mainView").classList.remove("hidden");
+  }
+
+  function closeApp() {
+    tg.close();
+  }
+
+  function playCoin() {
+    alert("Монетка — пока недоступна в Mini App. Играйте в боте!");
+    // Или: tg.openTelegramLink('https://t.me/cards_7kbot');
+  }
+
+  // Загрузка списка паков из бота (пока статика)
+  function loadShop() {
+    const shopList = document.getElementById("shopList");
+    // В реальности: запрос к API или получение через initData
+    // Пока покажем статичные кнопки
+    shopList.innerHTML = `
+      <button onclick="buyPack('mini')">Купить Mini Pack (1440 🪙)</button>
+      <button onclick="buyPack('norm')">Купить Norm Pack (2500 🪙)</button>
+    `;
+  }
+
+  function buyPack(pack) {
+    if (confirm(`Подтвердите покупку: ${pack}?`)) {
+      sendData({ action: "buy", pack: pack });
     }
+  }
 
-    function getBalance() {
-      sendData({ action: "get_balance" });
-    }
-
-    function buyPack(packKey) {
-      if (confirm(`Подтвердите покупку пака "${packKey}"?`)) {
-        sendData({ action: "buy", pack: packKey });
-      }
-    }
-
-    async function loadPacks() {
-      try {
-        const res = await fetch(API_URL);
-        const packs = await res.json();
-        const container = document.getElementById("packs-container");
-        if (Object.keys(packs).length === 0) {
-          container.innerHTML = "<p>❌ Нет доступных паков.</p>";
-          return;
-        }
-        let html = "";
-        for (const [key, info] of Object.entries(packs)) {
-          html += `
-            <button class="pack-btn" onclick="buyPack('${key}')">
-              ${info.title} — ${info.price} 🪙
-            </button><br>
-          `;
-        }
-        container.innerHTML = html;
-      } catch (err) {
-        console.error("Ошибка загрузки паков:", err);
-        document.getElementById("packs-container").innerHTML = 
-          "<p>⚠️ Не удалось загрузить паки. Попробуйте позже.</p>";
-      }
-    }
-
-    // Инициализация
-    getBalance();
-    loadPacks();
-  </script>
+  // При старте — сразу запрашиваем баланс
+  loadBalance();
+</script>
 </body>
 </html>
