@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рынок карт | Capicoin Cards</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="back-btn">← Назад</a>
+            <h1>🎴 Рынок карт</h1>
+            <div class="user-info">
+                <div class="balance">
+                    <span class="coin-icon">🪙</span>
+                    <span id="balance">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="filters">
+                <select id="type-filter">
+                    <option value="all">Все типы</option>
+                    <option value="attack">Атакующие</option>
+                    <option value="defense">Защитные</option>
+                    <option value="healer">Хилеры</option>
+                    <option value="legend">Легендарные</option>
+                    <option value="super">Супер</option>
+                </select>
+                <select id="sort-filter">
+                    <option value="newest">Сначала новые</option>
+                    <option value="oldest">Сначала старые</option>
+                    <option value="price-low">Сначала дешёвые</option>
+                    <option value="price-high">Сначала дорогие</option>
+                </select>
+            </div>
+
+            <div class="market-grid" id="market-grid">
+                <!-- Лоты будут загружаться сюда -->
+                <div class="loading">Загрузка...</div>
+            </div>
+
+            <div class="pagination" id="pagination">
+                <button class="btn btn-secondary" id="prev-btn" disabled>← Назад</button>
+                <span id="page-info">Страница 1</span>
+                <button class="btn btn-secondary" id="next-btn">Вперёд →</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно для деталей лота -->
+    <div class="modal" id="item-modal">
+        <div class="modal-content">
+            <button class="close-btn" id="close-modal">&times;</button>
+            <div id="modal-content"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="buy-btn">Купить</button>
+                <button class="btn btn-secondary" id="report-btn">Пожаловаться</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/market.js"></script>
+</body>
+</html>

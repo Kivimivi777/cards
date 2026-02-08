@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Промокоды | Capicoin Cards</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="back-btn">← Назад</a>
+            <h1>🎁 Промокоды</h1>
+            <div class="user-info">
+                <div class="balance">
+                    <span class="coin-icon">🪙</span>
+                    <span id="balance">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="promo-section">
+                <h2>Активировать промокод</h2>
+                <div class="input-group">
+                    <input type="text" id="promo-code" placeholder="Введите промокод" maxlength="20">
+                    <button class="btn btn-primary" id="activate-btn">Активировать</button>
+                </div>
+                <div id="promo-result" class="result-message"></div>
+            </div>
+
+            <div class="promo-info">
+                <h3>ℹ️ Как получить промокод?</h3>
+                <ul>
+                    <li>Следите за новостями в канале</li>
+                    <li>Участвуйте в розыгрышах</li>
+                    <li>Приглашайте друзей по реферальной ссылке</li>
+                </ul>
+            </div>
+
+            <div class="history-section" id="history-section" style="display: none;">
+                <h3>История активаций</h3>
+                <div id="history-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/promo.js"></script>
+</body>
+</html>
